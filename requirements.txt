@@ -1,5 +1,6 @@
 # Pinned lower bounds — match Google's MedGemma recipe + current PaliGemma2 fix
 torch>=2.3.0
+torchvision>=0.18.0       # Required for ResNet-18 lightweight model
 transformers>=4.50.0     # Gemma 3 support landed in 4.50
 accelerate>=1.0.0
 peft>=0.13.0             # LoraConfig + prepare_model_for_kbit_training
