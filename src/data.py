@@ -47,7 +47,7 @@ NCT_CRC_ZIP_NAME = "NCT-CRC-HE-100K.zip"
 # Hard cap on Zenodo download so the loader never silently pulls 1+ GB
 # during smoke tests or quick app demos. Set to None to allow the full
 # archive (e.g. when the user explicitly requests the real data).
-NCT_CRC_MAX_BYTES_DEFAULT = 200 * 1024 * 1024  # 200 MB partial sample
+NCT_CRC_MAX_BYTES_DEFAULT = None  # No cap — full 1.2 GB archive
 
 PCAM_HF_ID = "1aurent/PatchCamelyon"
 
@@ -230,11 +230,6 @@ def ensure_nct_crc_extracted(force: bool = False,
 
     Returns the path to the extracted ``NCT-CRC-HE-100K`` directory, or
     ``None`` if the download could not be completed.
-
-    By default ``max_bytes`` is set to a 200 MB partial sample to avoid
-    silently downloading the full ~1.2 GB archive during quick smoke tests
-    or app demos. Pass ``max_bytes=None`` to fetch the full archive (the
-    user must explicitly request this).
     """
     DATA_CACHE.mkdir(parents=True, exist_ok=True)
     zip_path = DATA_CACHE / NCT_CRC_ZIP_NAME
@@ -318,9 +313,7 @@ def load_nct_crc(n: int, seed: int = 0,
                max_bytes: Optional[int] = NCT_CRC_MAX_BYTES_DEFAULT):
     """Load NCT-CRC-HE-100K (auto-downloading if necessary).
 
-    Falls back to synthetic if no network or no Zenodo access, or if the
-    download cap (``max_bytes``) is hit. Pass ``max_bytes=None`` to allow
-    the full 1.2 GB archive.
+    Falls back to synthetic if no network or no Zenodo access.
     """
     root = ensure_nct_crc_extracted(max_bytes=max_bytes)
     if root is None:

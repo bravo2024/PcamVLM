@@ -209,7 +209,7 @@ def train_lightweight(
         if task == "pcam":
             try:
                 train_rows = D.load_pcam("train", train_size, seed=seed)
-                val_rows = D.load_pcam("validation", val_size, seed=seed)
+                val_rows = D.load_pcam("valid", val_size, seed=seed)
             except Exception:
                 if verbose:
                     print("[lightweight] real PCam unavailable, falling back to synthetic")
