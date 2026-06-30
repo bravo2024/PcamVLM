@@ -1,0 +1,5 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# VLM adapter is large - track with Git LFS
+models/pcam-medgemma-lora/** filter=lfs diff=lfs merge=lfs -text

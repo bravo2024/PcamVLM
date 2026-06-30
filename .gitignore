@@ -31,6 +31,9 @@ models/*
 !models/lightweight-nct.pt
 !models/lightweight-nct.json
 
+# VLM adapter directory (large; use Git LFS if it exceeds 100 MB)
+!models/pcam-medgemma-lora/
+
 # Streamlit secrets
 .streamlit/secrets.toml
 
