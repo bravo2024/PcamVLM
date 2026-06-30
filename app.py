@@ -106,7 +106,7 @@ def load_samples(task_name, source_label, n):
     if sk == "synthetic":
         return D.make_synthetic_pcam(n, 42) if task_name == "pcam" else D.make_synthetic_nct_crc(n, 42)
     if sk == "pcam":
-        return D.load_pcam("validation", n, 42)
+        return D.load_pcam("valid", n, 42)
     if sk == "nct_crc":
         return D.load_nct_crc(n, 42)
     return D.make_synthetic_pcam(n, 42)
