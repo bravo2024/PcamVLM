@@ -1,0 +1,42 @@
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+.Python
+.venv/
+venv/
+env/
+
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Project caches
+.pcamvl_datasets/
+logs/*.log
+data/raw/
+
+# Trained adapter artefacts (kept out of git by default)
+models/*
+!models/.gitkeep
+# Allow lightweight models (small .pt + .json, needed for Streamlit Cloud deploy)
+!models/lightweight-pcam.pt
+!models/lightweight-pcam.json
+!models/lightweight-nct.pt
+!models/lightweight-nct.json
+
+# Streamlit secrets
+.streamlit/secrets.toml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
