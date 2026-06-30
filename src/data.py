@@ -299,7 +299,7 @@ def _nct_crc_dir_iter(root: Path):
     Subdirectory names are the class labels (ADI, BACK, ...). We map them to
     ints according to ``core.NCT_CRC_LABEL_NAMES``.
     """
-    from .core import NCT_CRC_LABEL_NAMES
+    from src.core import NCT_CRC_LABEL_NAMES
     name_to_idx = {v: k for k, v in NCT_CRC_LABEL_NAMES.items()}
     if not root.is_dir():
         return
@@ -385,7 +385,7 @@ def load_combined(spec: DatasetSpec, seed: int = 0,
     nct_val_n = spec.val_size - pcam_val_n
 
     train_pcam = load_pcam("train", pcam_train_n, seed=seed)
-    val_pcam = load_pcam("validation", pcam_val_n, seed=seed)
+    val_pcam = load_pcam("valid", pcam_val_n, seed=seed)
     train_nct = load_nct_crc(nct_train_n, seed=seed + 2,
                              max_bytes=nct_max_bytes)
     val_nct = load_nct_crc(nct_val_n, seed=seed + 3,
@@ -425,9 +425,12 @@ def prepare_image_for_model(image: Image.Image, target: int = 224) -> Image.Imag
 # ---------------------------------------------------------------------------
 
 def make_messages(example: Dict, question: str, answer: str) -> Dict:
-    """Build a Gemma3 chat-template compatible ``messages`` field."""
+    """Build a Gemma3 chat-template compatible ``messages`` field.
+    
+    The image is passed raw — the processor's min_pixels/max_pixels
+    handles all resizing during training/inference.
+    """
     img = example["image"]
-    img = prepare_image_for_model(img, target=224)
     return {
         "messages": [
             {"role": "user", "content": [

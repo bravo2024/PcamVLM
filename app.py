@@ -113,15 +113,18 @@ def load_samples(task_name, source_label, n):
 
 
 @st.cache_resource(show_spinner=False)
-def _load_lightweight_model(task_name):
+def _load_lightweight_model(task_name: str, model_mtime: float = 0.0):
+    """Load lightweight model. ``model_mtime`` is part of the cache key so a
+    newly-created weight file automatically invalidates a stale "not found" cache."""
     from src import lightweight as LW
-    m = LW.load_lightweight_model(task_name)
+    m, err = LW.load_lightweight_model_with_error(task_name)
     ok = m is not None
     if not ok:
+        # Fall back to an untrained model so the UI still renders, but surface the error.
         nc = 2 if task_name == "pcam" else 9
         m = LW.ResNetClassifier(num_classes=nc, freeze_backbone=True)
         m.eval()
-    return m, ok
+    return m, ok, err
 
 
 @st.cache_resource(show_spinner=False)
@@ -158,11 +161,18 @@ def _predict_nct_crc_vlm(model, p, img):
 
 
 MODEL_OK = False
+_lw_err = ""
 _is_light = model_mode == "lightweight"
 if _is_light:
-    _lw_model, MODEL_OK = _load_lightweight_model(task)
+    from src import lightweight as LW
+
+    _lw_path = LW.LIGHT_MODEL_PCAM_PATH if task == "pcam" else LW.LIGHT_MODEL_NCT_PATH
+    _lw_mtime = _lw_path.stat().st_mtime if _lw_path.exists() else 0.0
+    _lw_model, MODEL_OK, _lw_err = _load_lightweight_model(task, _lw_mtime)
     _vlm_model = None
     _processor = None
+    if not MODEL_OK:
+        st.sidebar.info(f"Lightweight model not loaded: {_lw_err}")
 else:
     _vlm_model, _processor, MODEL_OK, err = _load_vlm_model(base_id, adapter_dir)
     _lw_model = None
@@ -294,7 +304,10 @@ with t_predict:
         if MODEL_OK:
             st.success("✅ Lightweight CNN — ResNet-18 loaded and ready.")
         else:
-            st.warning("⚠️ No trained weights found. Using untrained model (random predictions).")
+            st.warning(
+                f"⚠️ No trained weights found. Using untrained model (random predictions).\n\n"
+                f"**Reason:** {_lw_err or 'model file missing'}"
+            )
     else:
         if MODEL_OK:
             st.success("✅ MedGemma VLM — Model with LoRA adapter loaded.")

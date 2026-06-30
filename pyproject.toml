@@ -1,0 +1,12 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "pcamvlm"
+version = "0.1.0"
+description = "PcamVLM — MedGemma 1.5 4B QLoRA fine-tune on PCam + NCT-CRC-HE-100K"
+requires-python = ">=3.10"
+
+[tool.setuptools.packages.find]
+include = ["src*"]

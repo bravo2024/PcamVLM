@@ -87,6 +87,11 @@ def save_lightweight_model(model: ResNetClassifier, path: Path,
 
 def load_lightweight_model(task: str = "pcam",
                            path: Optional[Path] = None) -> Optional[ResNetClassifier]:
+    """Load a lightweight ResNet model from disk.
+
+    Tolerates missing or corrupted weights by returning ``None``. Logs the
+    actual exception to stderr so that deployment issues are diagnosable.
+    """
     if path is None:
         path = LIGHT_MODEL_PCAM_PATH if task == "pcam" else LIGHT_MODEL_NCT_PATH
     if not path.exists():
@@ -98,8 +103,27 @@ def load_lightweight_model(task: str = "pcam",
         model.load_state_dict(state)
         model.eval()
         return model
-    except Exception:
+    except Exception as exc:  # noqa: BLE001
+        print(f"[lightweight] failed to load {path}: {type(exc).__name__}: {exc}", file=sys.stderr)
         return None
+
+
+def load_lightweight_model_with_error(task: str = "pcam",
+                                       path: Optional[Path] = None) -> tuple:
+    """Return (model, error_message). ``model`` is ``None`` on failure."""
+    if path is None:
+        path = LIGHT_MODEL_PCAM_PATH if task == "pcam" else LIGHT_MODEL_NCT_PATH
+    if not path.exists():
+        return None, f"Model file not found: {path}"
+    num_classes = 2 if task == "pcam" else 9
+    model = ResNetClassifier(num_classes=num_classes, freeze_backbone=True)
+    try:
+        state = torch.load(path, map_location="cpu", weights_only=True)
+        model.load_state_dict(state)
+        model.eval()
+        return model, ""
+    except Exception as exc:  # noqa: BLE001
+        return None, f"{type(exc).__name__}: {exc}"
 
 
 def load_lightweight_metadata(task: str = "pcam") -> dict:
